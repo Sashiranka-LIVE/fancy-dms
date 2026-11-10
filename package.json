@@ -1,1 +1,10 @@
-{"name":"dms-fancy-shop","version":"1.0.0","private":true,"scripts":{"start":"node server.cjs","check":"node --check app.js"}}
+{
+  "name": "dms-fancy-shop",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.cjs",
+    "check": "node --check app.js && node --check admin.js && node --check catalog-service.js && node --check admin-config.js",
+    "test": "node tests/catalog.cjs && node tests/admin.cjs"
+  }
+}

@@ -1,0 +1,20 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const nodes={};function node(id){return nodes[id]??={hidden:true,value:'',checked:false,required:false,disabled:false,innerHTML:'',textContent:'',open:false,files:[],classList:{toggle(){}},listeners:{},style:{},setAttribute(){},addEventListener(name,handler){this.listeners[name]=handler;},focus(){},showModal(){this.open=true;},close(){this.open=false;},querySelector(){return node(id+' button');}};}
+const form=node('#product-form');form.elements={};for(const key of ['brand','name','category','sort_order','description','details','price_mode','price','visible'])form.elements[key]=node(key);
+form.reset=()=>{Object.values(form.elements).forEach(x=>x.value='');form.elements.category.value='Skincare';};form.reportValidity=()=>true;
+const login=node('#login-form');login.elements={email:{value:'owner@example.test'},password:{value:'fake'}};
+const product={id:'existing',brand:'Original',name:'Cream',category:'Skincare',price:100,image:'assets/cetaphil-cream-clean.webp',cutout:true,description:'566 g',details:'Details',visible:true,sort_order:0,version:1};let saved=[],uploads=0;
+const context={document:{querySelector:node},window:{DMSCatalog:{configured:true,list:async()=>[product],login:async()=> 'owner@example.test',logout:async()=>{},upload:async()=>{uploads++;return 'https://example.test/image.png';},save:async(p,isNew)=>{saved.push({p,isNew});return {...p,version:2};}},addEventListener(){}},crypto:require('crypto').webcrypto,URL:{createObjectURL:()=> 'blob:preview',revokeObjectURL(){}},createImageBitmap:async()=>({width:500,height:500,close(){}}),confirm:()=>true};
+vm.createContext(context);vm.runInContext(fs.readFileSync(require('path').join(__dirname,'..','admin.js'),'utf8'),context);
+(async()=>{
+ assert.equal(node('#login-panel').hidden,false);await login.listeners.submit({preventDefault(){},currentTarget:login});assert.equal(node('#dashboard').hidden,false);assert.equal(login.elements.password.value,'');
+ node('#new-product').listeners.click();assert.equal(node('#editor').open,true);assert.equal(form.elements.visible.value,'false');assert.equal(form.elements.price_mode.value,'ask');
+ form.elements.brand.value='Test';form.elements.name.value='<img onerror=alert(1)>';form.elements.description.value='Product';form.elements.details.value='Description';form.listeners.input();assert(node('#card-preview').innerHTML.includes('&lt;img'));
+ await form.listeners.submit({preventDefault(){}});assert.equal(saved.length,0);assert.match(node('#editor-status').textContent,/image first/);
+ node('#image-file').files=[{type:'image/png',size:500}];await node('#image-file').listeners.change();assert(node('#card-preview').innerHTML.includes('blob:preview'));
+ await form.listeners.submit({preventDefault(){}});assert.equal(saved.length,0);
+ node('#image-confirm').checked=true;await form.listeners.submit({preventDefault(){}});assert.equal(saved.length,1);assert.equal(uploads,1);assert.equal(saved[0].isNew,true);assert.equal(saved[0].p.price,null);assert.equal(saved[0].p.cutout,true);assert.equal(saved[0].p.visible,false);assert.equal(node('#editor').open,false);
+ node('#admin-list').listeners.click({target:{closest:()=>({dataset:{edit:'existing'}})}});form.elements.price.value='250';form.elements.price_mode.value='fixed';await form.listeners.submit({preventDefault(){}});assert.equal(saved[1].isNew,false);assert.equal(saved[1].p.price,250);assert.equal(saved[1].p.image,product.image);assert.equal(uploads,1);
+ await node('#signout').listeners.click();assert.equal(node('#dashboard').hidden,true);assert.equal(node('#login-panel').hidden,false);
+ console.log('PASS: manager login, hidden/new defaults, escaped preview, missing image rejection, image confirmation, create/edit saves, original image preservation, signout. DOM mocks only; visual browser QA pending.');
+})().catch(e=>{console.error(e);process.exitCode=1;});
