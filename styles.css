@@ -16,3 +16,12 @@
 
 /* Isolated catalog products on the existing warm studio background. */
 .product-image:has(.clean-cutout),.detail-image:has(.clean-cutout){background:#faf1e6}.product-image .clean-cutout{object-fit:contain;object-position:center;padding:6%}.bag-row img.clean-cutout{object-fit:contain;background:#faf1e6}#product-detail img.clean-cutout{object-fit:contain;background:#faf1e6;padding:7%}.contact-card .founder-contact{display:flex;font-size:12px;margin:14px auto 0;border:1px solid var(--line);background:transparent;max-width:100%;white-space:normal}
+
+/* Desktop framing: contain all four products; mobile/tablet rules remain untouched. */
+@media (min-width:1024px){
+ .hero-art{background-size:auto 94%;background-position:right center;background-repeat:no-repeat;animation:none;transform:scale(var(--hero-zoom,1));transform-origin:78% 50%}
+ .hero-copy{width:43%;background:linear-gradient(90deg,#012219b0,transparent)}
+}
+@media (min-width:1024px) and (prefers-reduced-motion:reduce){
+ .hero-art{transform:none}
+}

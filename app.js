@@ -94,3 +94,36 @@ updateCounts();renderProducts();
 
 
 
+
+// Desktop-only scroll zoom. No scroll interception, layout changes, or mobile listeners.
+(function setupHeroZoom(){
+ const art=document.querySelector('.hero-art'),hero=document.querySelector('.hero');
+ const enabled=window.matchMedia('(min-width:1024px) and (prefers-reduced-motion:no-preference)');
+ if(!art||!hero)return;
+ let frame=0,current=1,target=1;
+ function paint(){
+  current+=(target-current)*0.14;
+  if(Math.abs(target-current)<0.0001)current=target;
+  art.style.setProperty('--hero-zoom',current.toFixed(5));
+  frame=current!==target?requestAnimationFrame(paint):0;
+ }
+ function update(){
+  const rect=hero.getBoundingClientRect();
+  const progress=Math.min(1,Math.max(0,-rect.top/Math.max(1,rect.height)));
+  target=1+0.055*progress;
+  if(!frame&&target!==current)frame=requestAnimationFrame(paint);
+ }
+ function configure(){
+  window.removeEventListener('scroll',update);
+  window.removeEventListener('resize',update);
+  cancelAnimationFrame(frame);frame=0;current=target=1;
+  art.style.removeProperty('--hero-zoom');
+  if(enabled.matches){
+   window.addEventListener('scroll',update,{passive:true});
+   window.addEventListener('resize',update,{passive:true});
+   update();
+  }
+ }
+ enabled.addEventListener('change',configure);
+ configure();
+})();
