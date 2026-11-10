@@ -1,6 +1,6 @@
 # Facebook catalog additions
 
-Reviewed 10 November 2026. Prices are advertised historical prices, not a promise of current stock or offers. Original artwork is preserved. All website inquiries use 0714150911.
+Reviewed 10 November 2026. Prices are advertised historical prices, not a promise of current stock or offers. Storefront uses isolated product images, not promotional posters. Order inquiries and founder contact use 0712150911. Team chat uses 0714150911.
 
 - Medicube Deep Vita C Capsule Cream — LKR 6600 — https://www.facebook.com/photo.php?fbid=1408666397922507
 - Beauty of Joseon Relief Sun — LKR 5900 — https://www.facebook.com/photo.php?fbid=1408648641257616

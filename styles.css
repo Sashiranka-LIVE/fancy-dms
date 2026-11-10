@@ -13,3 +13,6 @@
 @media(max-width:760px){.brand{gap:8px}.brand-image{width:34px;height:43px;flex-basis:34px}.brand-image img{width:100%;height:100%}.brand small{font-size:8px;letter-spacing:4px;margin-bottom:2px}.brand strong{font-size:18px;letter-spacing:.3px}.brand em{font-size:5px;letter-spacing:2px;margin-top:4px}}
 @media(max-width:360px){.brand{gap:6px}.brand-image{width:30px;height:39px;flex-basis:30px}.brand strong{font-size:16px}}
 
+
+/* Isolated catalog products on the existing warm studio background. */
+.product-image:has(.clean-cutout),.detail-image:has(.clean-cutout){background:#faf1e6}.product-image .clean-cutout{object-fit:contain;object-position:center;padding:6%}.bag-row img.clean-cutout{object-fit:contain;background:#faf1e6}#product-detail img.clean-cutout{object-fit:contain;background:#faf1e6;padding:7%}.contact-card .founder-contact{display:flex;font-size:12px;margin:14px auto 0;border:1px solid var(--line);background:transparent;max-width:100%;white-space:normal}

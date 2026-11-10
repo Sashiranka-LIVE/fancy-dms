@@ -11,7 +11,7 @@ The `.nojekyll` file allows the site to be served as static files without a Jeky
 All storefront asset paths are relative, including on a repository Pages URL.
 
 ## Orders
-The shopping bag creates a WhatsApp inquiry addressed to +94 71 415 0911.
+The shopping bag creates a WhatsApp inquiry addressed to +94 71 215 0911.
 Cash on delivery, bank transfer and pickup are inquiry preferences; the store confirms payment, stock and delivery details. No card payments are collected.
 
 ## Editing
