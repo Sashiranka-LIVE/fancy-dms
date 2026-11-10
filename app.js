@@ -2,6 +2,7 @@
 'use strict';
 const SHOP = { whatsapp: '94712150911', cartKey: 'dms-bag-v1' };
 const PRODUCTS = [
+{"id":"cetaphil-cream","brand":"Cetaphil","name":"Moisturizing Cream","category":"Skincare","price":null,"image":"assets/cetaphil-cream-clean.webp","cutout":true,"description":"Very dry to dry, sensitive skin · 566 g","details":"Cetaphil Moisturizing Cream, 20 oz (566 g) packaging shown. Contact us to confirm the current price and availability before ordering."},
 {"id":"medicube-vita-c","brand":"Medicube","name":"Deep Vita C Capsule Cream","category":"Skincare","price":6600,"image":"assets/medicube-vita-c-clean.webp","description":"Vitamin C capsule cream","details":"Medicube Deep Vita C Capsule Cream. Advertised on our Facebook page. Please confirm current price, pack size and availability before ordering.","source":"https://www.facebook.com/photo.php?fbid=1408666397922507","cutout":true},
 {"id":"boj-relief-sun","brand":"Beauty of Joseon","name":"Relief Sun","category":"Skincare","price":5900,"image":"assets/boj-relief-sun-clean.webp","description":"Rice + Probiotics · SPF50+ PA++++","details":"Beauty of Joseon Relief Sun. Advertised on our Facebook page. Please confirm current price, pack size and availability before ordering.","source":"https://www.facebook.com/photo.php?fbid=1408648641257616","cutout":true},
 {"id":"cosrx-snail","brand":"COSRX","name":"Advanced Snail 92 All in One Cream","category":"Skincare","price":5600,"image":"assets/cosrx-snail-clean.webp","description":"Face cream · 100 g packaging shown","details":"COSRX Advanced Snail 92 All in One Cream. Advertised on our Facebook page. Please confirm current price, pack size and availability before ordering.","source":"https://www.facebook.com/photo.php?fbid=1219756350146847","cutout":true},
@@ -18,12 +19,12 @@ const PRODUCTS = [
 ];
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const money = n => 'LKR ' + n.toLocaleString('en-LK');
+const money = n => n===null?'Ask for price':'LKR ' + n.toLocaleString('en-LK');
 const escapeHTML = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function sanitizeCart(value) {
  const result = {};
  if (!value || typeof value !== 'object' || Array.isArray(value)) return result;
- for (const p of PRODUCTS) if (Number.isInteger(value[p.id]) && value[p.id]>0) result[p.id]=Math.min(99,value[p.id]);
+ for (const p of PRODUCTS) if (p.price!==null && Number.isInteger(value[p.id]) && value[p.id]>0) result[p.id]=Math.min(99,value[p.id]);
  return result;
 }
 function buildInquiry(cart, fields) {
@@ -37,15 +38,15 @@ const bagSvg='<svg><use href="#bag-icon"/></svg>';
 function saveBag(){try{localStorage.setItem(SHOP.cartKey,JSON.stringify(bag));}catch{} updateCounts();}
 function updateCounts(){const count=Object.values(bag).reduce((a,b)=>a+b,0);$$('.bag-count').forEach(e=>e.textContent=count);}
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),2500);}
-function add(id){if(!PRODUCTS.some(p=>p.id===id))return;if((bag[id]||0)>=99){toast('Maximum quantity is 99 per item.');return;}bag[id]=(bag[id]||0)+1;saveBag();toast('Added to your beauty bag');if($('#bag-dialog').open)renderBag();}
+function add(id){if(!PRODUCTS.some(p=>p.id===id&&p.price!==null))return;if((bag[id]||0)>=99){toast('Maximum quantity is 99 per item.');return;}bag[id]=(bag[id]||0)+1;saveBag();toast('Added to your beauty bag');if($('#bag-dialog').open)renderBag();}
 function shot(p,cls=''){return p.shot?'<span class="packshot '+cls+'" role="img" aria-label="'+escapeHTML(p.brand+' '+p.name)+'" style="background-position:'+p.shot+'"></span>':'<img class="'+cls+(p.cutout?' clean-cutout':'')+'" loading="lazy" src="'+p.image+'" alt="'+escapeHTML(p.brand+' '+p.name)+'">';}
 function renderProducts(){
  const query=$('#search').value.trim().toLowerCase();
  let list=PRODUCTS.filter(p=>(category==='All'||p.category===category)&&[p.name,p.brand,p.category,p.description].join(' ').toLowerCase().includes(query));
  const sort=$('#sort').value;
- if(sort==='low')list.sort((a,b)=>a.price-b.price);if(sort==='high')list.sort((a,b)=>b.price-a.price);if(sort==='name')list.sort((a,b)=>a.name.localeCompare(b.name));
+ if(sort==='low')list.sort((a,b)=>(a.price===null)-(b.price===null)||(a.price||0)-(b.price||0));if(sort==='high')list.sort((a,b)=>(a.price===null)-(b.price===null)||(b.price||0)-(a.price||0));if(sort==='name')list.sort((a,b)=>a.name.localeCompare(b.name));
  $('#result-count').textContent=list.length+' beauty essential'+(list.length===1?'':'s');
- $('#product-grid').innerHTML=list.length?list.map((p,i)=>'<article class="product-card" style="animation-delay:'+i*35+'ms"><button class="product-image" data-detail="'+p.id+'" aria-label="View '+escapeHTML(p.brand+' '+p.name)+'">'+shot(p)+'<span class="category-tag">'+p.category+'</span></button><div class="product-info"><p class="product-brand">'+escapeHTML(p.brand.toUpperCase())+'</p><h3><button data-detail="'+p.id+'">'+escapeHTML(p.name)+'</button></h3><p class="product-description">'+escapeHTML(p.description)+'</p><div class="product-bottom"><span class="price">'+money(p.price)+'</span><button class="add-button" data-add="'+p.id+'" aria-label="Add '+escapeHTML(p.brand+' '+p.name)+' to bag">'+bagSvg+' Add to bag</button></div></div></article>').join(''):'<div class="empty-results"><h3>No matching essentials</h3><p>Try another name or explore the full collection.</p><button class="button green" id="reset-filters">Show all products</button></div>';
+ $('#product-grid').innerHTML=list.length?list.map((p,i)=>'<article class="product-card" style="animation-delay:'+i*35+'ms"><button class="product-image" data-detail="'+p.id+'" aria-label="View '+escapeHTML(p.brand+' '+p.name)+'">'+shot(p)+'<span class="category-tag">'+p.category+'</span></button><div class="product-info"><p class="product-brand">'+escapeHTML(p.brand.toUpperCase())+'</p><h3><button data-detail="'+p.id+'">'+escapeHTML(p.name)+'</button></h3><p class="product-description">'+escapeHTML(p.description)+'</p><div class="product-bottom"><span class="price">'+money(p.price)+'</span><button class="add-button" '+(p.price===null?'data-inquire':'data-add')+'="'+p.id+'" aria-label="'+(p.price===null?'Ask price for ':'Add ')+''+escapeHTML(p.brand+' '+p.name)+(p.price===null?'':' to bag')+'">'+bagSvg+(p.price===null?' Ask price':' Add to bag')+'</button></div></div></article>').join(''):'<div class="empty-results"><h3>No matching essentials</h3><p>Try another name or explore the full collection.</p><button class="button green" id="reset-filters">Show all products</button></div>';
 }
 function filter(next){category=next;$$('[data-filter]').forEach(b=>{b.classList.toggle('active',b.dataset.filter===category);b.setAttribute('aria-pressed',String(b.dataset.filter===category));});renderProducts();}
 function renderBag(){
@@ -55,7 +56,7 @@ function renderBag(){
  $('#subtotal').textContent=money(items.reduce((sum,p)=>sum+p.price*bag[p.id],0));
 }
 function openBag(){renderBag();$('#bag-dialog').showModal();}
-function showDetail(id){const p=PRODUCTS.find(p=>p.id===id);if(!p)return;$('#product-detail').innerHTML='<div class="detail-image">'+shot(p)+'</div><div class="detail-copy"><p class="eyebrow">'+escapeHTML(p.brand)+'</p><h2>'+escapeHTML(p.name)+'</h2><p>'+escapeHTML(p.details)+'</p><strong class="price">'+money(p.price)+'</strong><p class="fine-print">Estimated price. Confirm the exact variant, pack size and stock with our team.</p><button class="button green" data-add="'+p.id+'">Add to bag '+bagSvg+'</button><button class="detail-inquire text-link" data-inquire="'+p.id+'">Ask about this product ↗</button></div>';$('#product-dialog').showModal();}
+function showDetail(id){const p=PRODUCTS.find(p=>p.id===id);if(!p)return;$('#product-detail').innerHTML='<div class="detail-image">'+shot(p)+'</div><div class="detail-copy"><p class="eyebrow">'+escapeHTML(p.brand)+'</p><h2>'+escapeHTML(p.name)+'</h2><p>'+escapeHTML(p.details)+'</p><strong class="price">'+money(p.price)+'</strong><p class="fine-print">Estimated price. Confirm the exact variant, pack size and stock with our team.</p><button class="button green" '+(p.price===null?'data-inquire':'data-add')+'="'+p.id+'">'+(p.price===null?'Ask for price':'Add to bag')+' '+bagSvg+'</button><button class="detail-inquire text-link" data-inquire="'+p.id+'">Ask about this product ↗</button></div>';$('#product-dialog').showModal();}
 document.addEventListener('click',e=>{
  const addButton=e.target.closest('[data-add]');if(addButton)add(addButton.dataset.add);
  const detail=e.target.closest('[data-detail]');if(detail)showDetail(detail.dataset.detail);
