@@ -37,7 +37,8 @@ revoke all on public.products from public, anon, authenticated;
 grant select on public.products to anon, authenticated;
 grant insert(id,brand,name,category,price,image,description,details,shot,cutout,visible,sort_order) on public.products to authenticated;
 grant update(brand,name,category,price,image,description,details,shot,cutout,visible,sort_order) on public.products to authenticated;
--- No delete grant: use Hidden / draft so accidental removals are reversible.
+-- Product deletion is owner-only and requires explicit confirmation in the manager.
+grant delete on public.products to authenticated;
 drop policy if exists "Visible products or owner" on public.products;
 create policy "Visible products or owner" on public.products for select to anon, authenticated using (visible or (select public.is_shop_admin()));
 drop policy if exists "Owner inserts products" on public.products;

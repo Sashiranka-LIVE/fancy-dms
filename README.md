@@ -26,3 +26,6 @@ Product visuals are based on supplied branding and product artwork. Review curre
 ## Product manager
 
 Open `admin.html` and sign in with the approved Supabase Auth email/password. Products are read from Supabase; add/edit/hide listings in the manager. See [ADMIN-SETUP.md](ADMIN-SETUP.md) for setup, image guidelines and access checks. `npm run check` validates JavaScript syntax and `npm test` runs catalog and manager checks. Only public Supabase settings are shipped; ownership is enforced by database/storage policies.
+
+
+The product manager supports add, edit, visibility changes, and confirmed owner-only deletion. New listings default to hidden. Run `supabase-add-celimax-and-delete.sql` to enable product deletion and add Celimax Retinal Shot Tightening Booster (20 g), LKR 6,000, with free delivery.

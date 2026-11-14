@@ -22,6 +22,8 @@ const response=(data,status=200)=>({ok:status<400,status,json:async()=>data,text
  next=[{access_token:'test-token',expires_in:3600,user:{email:'owner@example.test'}},true];assert.equal(await api.login('owner@example.test','not-a-real-password'),'owner@example.test');
  next=[[{...product,version:2}]];await api.save(product,false);const save=calls.at(-1);assert.match(save.url,/version=eq.1/);const body=JSON.parse(save.options.body);assert(!('id' in body));assert(!('version' in body));assert.equal(save.options.headers.Authorization,'Bearer test-token');
  next=[[]];await assert.rejects(api.save(product,false),/changed in another session/);
+ next=[[product]];await api.remove(product.id,1);assert.equal(calls.at(-1).options.method,'DELETE');assert.match(calls.at(-1).url,/version=eq.1/);assert.equal(calls.at(-1).options.headers.Authorization,'Bearer test-token');
+ next=[[]];await assert.rejects(api.remove(product.id,1),/changed or was already removed/);
  next=[{}];const url=await api.upload(new Blob(['image'],{type:'image/png'}));assert.match(url,/\/product-images\/[a-f0-9-]+\.png$/);await assert.rejects(api.upload(new Blob(['x'],{type:'image/svg+xml'})),/PNG or WebP/);
  next=[{}];await api.logout();await assert.rejects(api.list(true),/session has expired/);
  next=[{access_token:'nonowner',expires_in:3600,user:{email:'no@example.test'}},false];await assert.rejects(api.login('no@example.test','invalid'),/not an approved/);await assert.rejects(api.list(true),/session has expired/);

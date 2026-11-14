@@ -11,7 +11,7 @@ function render(){
  const q=$('#admin-search').value.trim().toLowerCase(),v=$('#visibility').value;
  const list=products.filter(p=>(v==='all'||p.visible===(v==='live'))&&(p.brand+' '+p.name).toLowerCase().includes(q));
  $('#product-count').textContent='('+products.length+')';
- $('#admin-list').innerHTML=list.length?list.map(p=>'<article class="admin-item"><div class="admin-item-image">'+image(p)+'</div><div class="admin-item-copy"><span class="visibility-tag '+(!p.visible?'hidden-tag':'')+'">'+(p.visible?'Visible in store':'Hidden / draft')+'</span><p class="product-brand">'+escapeHTML(p.brand)+'</p><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(p.description)+'</p><strong>'+money(p.price)+'</strong><button class="button outline" data-edit="'+p.id+'">Edit listing</button></div></article>').join(''):'<p>No listings match this view. Add a product or change your filters.</p>';
+ $('#admin-list').innerHTML=list.length?list.map(p=>'<article class="admin-item"><div class="admin-item-image">'+image(p)+'</div><div class="admin-item-copy"><span class="visibility-tag '+(!p.visible?'hidden-tag':'')+'">'+(p.visible?'Visible in store':'Hidden / draft')+'</span><p class="product-brand">'+escapeHTML(p.brand)+'</p><h3>'+escapeHTML(p.name)+'</h3><p>'+escapeHTML(p.description)+'</p><strong>'+money(p.price)+'</strong><div class="admin-item-actions"><button class="button outline" data-edit="'+p.id+'">Edit listing</button><button class="button delete-listing" data-delete="'+p.id+'" aria-label="Delete '+escapeHTML(p.brand+' '+p.name)+'">Delete</button></div></div></article>').join(''):'<p>No listings match this view. Add a product or change your filters.</p>';
 }
 async function reload(){products=await api.list(true);render();}
 function setBusy(value){busy=value;$('#product-form').inert=value;$('#close-editor').disabled=value;$('#editor').setAttribute('aria-busy',String(value));}
@@ -49,7 +49,18 @@ $('#login-form').addEventListener('submit',async e=>{e.preventDefault();const f=
 });
 $('#signout').addEventListener('click',async()=>{if(busy)return;try{await api.logout();}catch{}products=[];$('#admin-list').innerHTML='';$('#dashboard').hidden=true;$('#signout').hidden=true;$('#login-panel').hidden=false;status('Signed out.');});
 $('#reload').addEventListener('click',async e=>{e.currentTarget.disabled=true;try{await reload();status('Product list refreshed.');}catch(e){status(e.message,true);}finally{$('#reload').disabled=false;}});
-$('#new-product').addEventListener('click',()=>edit());$('#admin-list').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(b)edit(b.dataset.edit);});
+$('#new-product').addEventListener('click',()=>edit());$('#admin-list').addEventListener('click',async e=>{
+ const removeButton=e.target.closest('[data-delete]');if(removeButton){
+ const product=products.find(p=>p.id===removeButton.dataset.delete);if(!product||busy)return;
+ if(!confirm('Permanently delete '+product.brand+' — '+product.name+'? This cannot be undone.'))return;
+ removeButton.disabled=true;busy=true;
+ try{await api.remove(product.id,product.version);products=products.filter(p=>p.id!==product.id);render();status('Product deleted. The uploaded image remains in storage and can be removed there if unused.');}
+ catch(error){status(error.message,true);removeButton.disabled=false;}
+ finally{busy=false;}
+ return;
+ }
+ const b=e.target.closest('[data-edit]');if(b)edit(b.dataset.edit);
+});
 $('#admin-search').addEventListener('input',render);$('#visibility').addEventListener('change',render);
 if(api?.configured)$('#login-panel').hidden=false;else $('#setup').hidden=false;
 })();

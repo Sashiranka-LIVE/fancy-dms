@@ -47,11 +47,10 @@ do $$ declare affected integer; begin
  update public.products set name='Stale edit' where id='policy-test-hidden' and version=1;
  get diagnostics affected = row_count;
  if affected <> 0 then raise exception 'Stale update was allowed'; end if;
- begin
-  delete from public.products where id='policy-test-hidden';
-  raise exception 'Destructive delete was allowed';
- exception when insufficient_privilege then null; end;
+ delete from public.products where id='policy-test-hidden';
+ get diagnostics affected = row_count;
+ if affected <> 1 then raise exception 'Owner delete failed'; end if;
 end $$;
 reset role;
 rollback;
-select 'PASS: public reads, hidden visibility, owner-only writes, self-promotion denial and stale-update protection' as result;
+select 'PASS: public reads, hidden visibility, owner-only writes, self-promotion denial and stale-update protection and owner deletion' as result;

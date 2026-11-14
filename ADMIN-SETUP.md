@@ -69,7 +69,7 @@ Publish the complete code, config and assets together only after these checks. T
 
 ## Day-to-day use
 
-Use **Add product** or **Edit listing**, choose category, set price or Ask for price, then check the live card preview. New products start Hidden / draft. Set Visible in store when ready. Smaller Display order values appear first.
+Use **Add product** or **Edit listing**, choose category, set price or Ask for price, then check the live card preview. **Delete** permanently removes a listing after confirmation; the image file remains in Storage. New products start Hidden / draft. Set Visible in store when ready. Smaller Display order values appear first.
 
 Use product-only transparent PNG/WebP images up to 5 MB and 100–8000 pixels per side. Upload does not automatically remove a poster background. The manager uses the existing cream product-card background, typography and image containment.
 
@@ -97,3 +97,12 @@ Pricing: https://supabase.com/pricing
 Keep the source project and asset archive. Export the product table from Supabase regularly and separately back up uploaded storage files; the original seed only contains the initial catalog. Before changing any database policy, verify anonymous and non-owner requests still cannot write.
 
 Local JavaScript tests use mocked APIs. The schema and RLS assertions also passed in a local PostgreSQL engine with simulated Supabase auth/storage schemas. These do not prove live Supabase Auth/Storage HTTP behavior. Run the SQL policy checks and the live checks above on your project. Refer to the delivery message for deployment status.
+
+
+## Celimax Retinal Shot listing
+
+The prepared image is published as `assets/celimax-retinal-shot-clean.webp`. Run `supabase-add-celimax-and-delete.sql` once to enable owner-only deletion and add Celimax Retinal Shot Tightening Booster (20 g), LKR 6,000, with free delivery.
+
+## Permanent product deletion
+
+Permanent deletion is owner-only and requires confirmation in the manager. Database rows are deleted; public product image files are not automatically deleted. Check their use before manually removing files from Storage. The migration above enables this policy.

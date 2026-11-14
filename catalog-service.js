@@ -66,11 +66,17 @@ async function save(product,isNew){
  if(!rows||rows.length!==1)throw Error('This product changed in another session. Reload the product list before saving.');
  return validate(rows[0]);
 }
+async function remove(id,version){
+ if(typeof id!=='string'||!/^[-a-z0-9]{1,80}$/.test(id)||['constructor','prototype'].includes(id)||!Number.isInteger(version)||version<1)throw Error('Invalid product selection.');
+ const rows=await request('/rest/v1/products?id=eq.'+encodeURIComponent(id)+'&version=eq.'+version,{method:'DELETE',auth:true,headers:{Prefer:'return=representation'}});
+ if(!rows||rows.length!==1)throw Error('This product changed or was already removed. Refresh the product list.');
+ return validate(rows[0]);
+}
 async function upload(file){
  if(!file||!['image/png','image/webp'].includes(file.type)||!file.size||file.size>5*1024*1024)throw Error('Use a PNG or WebP product cutout, up to 5 MB.');
  const extension=file.type==='image/png'?'png':'webp',path=crypto.randomUUID()+'.'+extension;
  await request('/storage/v1/object/product-images/'+path,{method:'POST',auth:true,body:file,headers:{'Content-Type':file.type,'x-upsert':'false'}});
  return cfg.url+'/storage/v1/object/public/product-images/'+path;
 }
-window.DMSCatalog=Object.freeze({categories,configured,validate,imageAllowed,login,logout,list,save,upload});
+window.DMSCatalog=Object.freeze({categories,configured,validate,imageAllowed,login,logout,list,save,remove,upload});
 })();
